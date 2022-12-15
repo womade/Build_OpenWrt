@@ -103,8 +103,8 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        git config --global user.email "github-actions@ssss.fun"
-        git config --global user.name "github-actions[bot]"
+        git config --global user.email "actions@ssss.fun"
+        git config --global user.name "actions[bot]"
     
     - name: Get current date
       id: date
@@ -181,7 +181,7 @@ jobs:
           find "devices/${{matrix.target}}/patches" -maxdepth 1 -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d './' --no-backup-if-mismatch --merge -p1 -E --forward"
           #git apply devices/${{matrix.target}}/patches/*.patch
         fi
-
+        
     - name: Default PPPOE Setting
       if: env.PPPOE_USERNAME && env.PPPOE_PASSWD
       run: |
