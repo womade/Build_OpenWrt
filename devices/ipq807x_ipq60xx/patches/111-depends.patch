@@ -1,0 +1,9 @@
+--- a/target/linux/ipq807x/Makefile
++++ b/target/linux/ipq807x/Makefile
+@@ -16,5 +16,5 @@
+ 	kmod-qca-nss-drv \
+ 	kmod-usb-phy-ipq807x kmod-usb-dwc3-of-simple \
+-	kmod-ath11k-ahb kmod-qrtr_mproc wpad \
++	kmod-ath11k-ahb kmod-qrtr_mproc wpad-basic-wolfssl kmod-hwmon-pwmfan wireless-regdb \
+ 	kmod-gpio-button-hotplug \
+ 	qca-thermald-10.4 qca-ssdk-shell kmod-qca-nss-drv-bridge-mgr \
