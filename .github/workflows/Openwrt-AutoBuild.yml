@@ -54,6 +54,7 @@ jobs:
         echo "UPLOAD_FIRMWARE_TO_COWTRANSFER=${UPLOAD_FIRMWARE_TO_COWTRANSFER}" >> $GITHUB_ENV
         echo "UPLOAD_FIRMWARE_TO_WETRANSFER=${UPLOAD_FIRMWARE_TO_WETRANSFER}" >> $GITHUB_ENV
         sed -i "1a REPO_TOKEN=${{ secrets.REPO_TOKEN }}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
+        sed -i "1a TARGET=${{matrix.target}}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
         if [ ${{matrix.target}} == "x86_64" ]; then
             echo "ARCH=linux/amd64" >> $GITHUB_ENV
             echo "MTARGET=x86_64" >> $GITHUB_ENV
@@ -101,8 +102,6 @@ jobs:
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean ) &
         sudo timedatectl set-timezone "$TZ"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
         git config --global user.email "actions@ssss.fun"
         git config --global user.name "actions[bot]"
     
@@ -118,9 +117,20 @@ jobs:
         fi
 
     - name: Clone source code
-      working-directory: /workdir
       run: |
-        if [ ! "${{ env.REPO_BRANCH }}" ]; then
+        if [ "${{matrix.target}}" == "ipq807x_ipq60xx" ]; then
+            git clone https://github.com/gl-inet/gl-infra-builder.git
+            cd gl-infra-builder
+            python3 setup.py -c configs/config-wlan-ap-5.4.yml
+            ln -sf gl-infra-builder/wlan-ap/openwrt ../openwrt
+            cd -
+        elif [ "${{matrix.target}}" == "mediatek_gl_mt7981" ]; then
+            git clone https://github.com/gl-inet/gl-infra-builder.git
+            cd gl-infra-builder
+            python3 setup.py -c configs/config-mt798x-7.6.6.1.yml
+            ln -sf gl-infra-builder/mt7981 ../openwrt
+            cd -
+        elif [ ! "${{ env.REPO_BRANCH }}" ]; then
           REPO_BRANCH="$((curl -gs -H 'Content-Type: application/json' \
            -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" \
            -X POST -d '{ "query": "query {repository(owner: \"openwrt\", name: \"openwrt\") {refs(refPrefix: \"refs/tags/\", last: 4, orderBy: {field: TAG_COMMIT_DATE, direction: ASC}) {edges {node {name}}}}}"}' https://api.github.com/graphql) | jq -r '.data.repository.refs.edges[].node.name' | grep v22 | tail -n 1)"
@@ -128,16 +138,6 @@ jobs:
         else
             git clone $REPO_URL -b ${{ env.REPO_BRANCH }} openwrt
         fi
-        if [ "${{matrix.target}}" == "ipq807x_ipq60xx" ]; then
-            cd openwrt
-            git checkout c67509efd7d0c43eb3f622f06c8a31aa28d22f6e
-        elif [ "${{matrix.target}}" == "mediatek_gl_mt7981" ]; then
-            sed -i "/tools\/Makefile/d" $GITHUB_WORKSPACE/devices/common/diy.sh
-            sed -i "s/config-*/config-x/" $GITHUB_WORKSPACE/devices/common/diy.sh
-            cd openwrt
-            git checkout bcaabe6d0586fabab72aa1fc6c06b8f83b6dfa0c
-        fi
-        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
     
     - name: Free up disk space
       env:
@@ -264,10 +264,6 @@ jobs:
         chmod +x alidrive
         ./alidrive openwrt/bin/targets/*/ OpenWrt/${{ matrix.target }}/$(date +'%Y%m%d-%H')/
 
-    - name: Deploy firmware to server
-      uses: easingthemes/ssh-deploy@main
-      if: env.SSH_PRIVATE_KEY && contains(github.event.action, 'toser')
-      with:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         ARGS: "-avzr --exclude="
         SOURCE: firmware/
@@ -283,6 +279,7 @@ jobs:
         ARGS: "-avzr"
         SOURCE: openwrt/bin/targets
         REMOTE_HOST: op.ssss.fun
+        REMOTE_PORT: '223'
         REMOTE_USER: root
         TARGET: "/www/wwwroot/op.ssss.fun/releases/tmp/"
 

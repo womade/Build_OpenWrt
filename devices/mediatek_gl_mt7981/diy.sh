@@ -12,7 +12,7 @@ rm -rf package/feeds/womade/{firewall,rtl88x2bu,base-files,netifd}
 
 rm -rf devices/common/patches/{glinet,imagebuilder.patch,iptables.patch,targets.patch,kernel-defaults.patch,disable_flock.patch}
 
-git am devices/mediatek_gl_mt7981/patches/glinet/*.patch
-
 sed -i "s/BOARD:=mediatek$/BOARD:=mediatek_gl/" target/linux/mediatek/Makefile
+
 mv -f target/linux/mediatek target/linux/mediatek_gl
+

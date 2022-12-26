@@ -1,6 +1,17 @@
 #!/bin/bash
 #=================================================
 shopt -s extglob
+
+[ ! -f feeds.conf ] && {
+sed -i '$a src-git womade https://github.com/womade/openwrt-packages.git;main' feeds.conf.default
+}
+
+sed -i '/	refresh_config();/d' scripts/feeds
+
+./scripts/feeds update -a
+./scripts/feeds install -a -p womade -f
+./scripts/feeds install -a
+
 kernel_v="$(cat include/kernel-5.10 | grep LINUX_KERNEL_HASH-* | cut -f 2 -d - | cut -f 1 -d ' ')"
 echo "KERNEL=${kernel_v}" >> $GITHUB_ENV || true
 sed -i "s?targets/%S/packages?targets/%S/$kernel_v?" include/feeds.mk
@@ -13,11 +24,6 @@ luci-base luci-compat luci-lib-ipkg luci-lib-fs \
 coremark wget-ssl curl htop nano zram-swap kmod-lib-zstd kmod-tcp-bbr bash openssh-sftp-server block-mount resolveip ds-lite swconfig /" include/target.mk
 sed -i "s/procd-ujail//" include/target.mk
 
-sed -i '/	refresh_config();/d' scripts/feeds
-[ ! -f feeds.conf ] && {
-sed -i '$a src-git womade https://github.com/womade/openwrt-packages.git;main' feeds.conf.default
-}
-
 sed -i "s/^.*vermagic$/\techo '1' > \$(LINUX_DIR)\/.vermagic/" include/kernel-defaults.mk
 
 status=$(curl -H "Authorization: token $REPO_TOKEN" -s "https://api.github.com/repos/womade/openwrt-packages/actions/runs" | jq -r '.workflow_runs[0].status')
@@ -26,24 +32,16 @@ while [ "$status" == "in_progress" ];do
 	status=$(curl -H "Authorization: token $REPO_TOKEN" -s "https://api.github.com/repos/womade/openwrt-packages/actions/runs" | jq -r '.workflow_runs[0].status')
 done
 
-./scripts/feeds update -a
-rm -rf feeds/womade/.diy
-./scripts/feeds install -a -p womade -f
-./scripts/feeds install -a
-
 mv -f feeds/womade/{r81*,igb-intel} tmp/
 
 sed -i "s/192.168.1/10.0.0/" package/feeds/womade/base-files/files/bin/config_generate
 
 (
-svn export --force https://github.com/coolsnowwolf/lede/trunk/tools/upx tools/upx
-svn export --force https://github.com/coolsnowwolf/lede/trunk/tools/ucl tools/ucl
 svn co https://github.com/coolsnowwolf/lede/trunk/target/linux/generic/hack-5.10 target/linux/generic/hack-5.10
 rm -rf target/linux/generic/hack-5.10/{220-gc_sections*,781-dsa-register*,780-drivers-net*,996-fs-ntfs3*}
 ) &
 
 sed -i "/BuildPackage,miniupnpd-iptables/d" feeds/packages/net/miniupnpd/Makefile
-sed -i 's?zstd$?zstd ucl upx\n$(curdir)/upx/compile := $(curdir)/ucl/compile?g' tools/Makefile
 sed -i 's/\/cgi-bin\/\(luci\|cgi-\)/\/\1/g' `find package/feeds/womade/luci-*/ -name "*.lua" -or -name "*.htm*" -or -name "*.js"` &
 sed -i 's/Os/O2/g' include/target.mk
 sed -i "/mediaurlbase/d" package/feeds/*/luci-theme*/root/etc/uci-defaults/*
