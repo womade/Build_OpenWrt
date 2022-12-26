@@ -135,7 +135,7 @@
 +		export IMG_PREFIX="$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))"; \
 +		export BIN_DIR=$(BIN_DIR); \
 +		export TOPDIR=$(TOPDIR); \
-+		cd /www/wwwroot/op.supes.top/bcache/rockchip/armv8/friendlywrt22-rk3568; \
++		cd /www/wwwroot/op.ssss.fun/bcache/rockchip/armv8/friendlywrt22-rk3568; \
 +		. ../modify_packit.sh; \
 +		./build.sh sd-img; \
 +		[ "$(MORE)" == "eflasher" ] && ./build.sh emmc-img; \
@@ -148,7 +148,7 @@
 +		export IMG_PREFIX="$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))"; \
 +		export BIN_DIR=$(BIN_DIR); \
 +		export TOPDIR=$(TOPDIR); \
-+		cd /www/wwwroot/op.supes.top/bcache/rockchip/armv8/friendlywrt22-rk3588; \
++		cd /www/wwwroot/op.ssss.fun/bcache/rockchip/armv8/friendlywrt22-rk3588; \
 +		. ../modify_packit.sh; \
 +		./build.sh sd-img; \
 +		[ "$(MORE)" == "eflasher" ] && ./build.sh emmc-img; \

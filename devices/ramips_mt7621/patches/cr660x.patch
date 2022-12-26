@@ -1,9 +1,9 @@
 From 593d238ebf777c36c9ee819a1e20f59da5adc361 Mon Sep 17 00:00:00 2001
-From: kiddin9 <48883331+kiddin9@users.noreply.github.com>
+From: Y-ZHENG <admin@ssss.fun>
 Date: Tue, 5 Jul 2022 17:54:53 +0800
 Subject: [PATCH] Update mt7621.mk
 
-Signed-off-by: kiddin9 <48883331+kiddin9@users.noreply.github.com>
+Signed-off-by: Y-ZHENG <admin@ssss.fun>
 ---
  target/linux/ramips/image/mt7621.mk | 46 +++++++++--------------------
  1 file changed, 14 insertions(+), 32 deletions(-)
