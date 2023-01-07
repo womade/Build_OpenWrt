@@ -4,7 +4,7 @@ shopt -s extglob
 
 SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 
-rm -rf package/feeds/kiddin9/{firewall,rtl*,base-files,netifd}
+rm -rf package/feeds/womade/{firewall,rtl*,base-files,netifd}
 
 rm -rf devices/common/patches/{glinet,imagebuilder.patch,iptables.patch,targets.patch,kernel-defaults.patch,disable_flock.patch}
 
