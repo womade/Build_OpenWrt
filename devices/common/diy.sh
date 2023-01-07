@@ -6,15 +6,13 @@ shopt -s extglob
 sed -i '$a src-git womade https://github.com/womade/openwrt-packages.git;main' feeds.conf.default
 }
 
+sed -i "s?targets/%S/packages?targets/%S/\$(LINUX_VERSION)?" include/feeds.mk
+
 sed -i '/	refresh_config();/d' scripts/feeds
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a -p womade -f
 ./scripts/feeds install -a
-
-kernel_v="$(cat include/kernel-5.10 | grep LINUX_KERNEL_HASH-* | cut -f 2 -d - | cut -f 1 -d ' ')"
-echo "KERNEL=${kernel_v}" >> $GITHUB_ENV || true
-sed -i "s?targets/%S/packages?targets/%S/$kernel_v?" include/feeds.mk
 
 echo "$(date +"%s")" >version.date
 sed -i '/$(curdir)\/compile:/c\$(curdir)/compile: package/opkg/host/compile' package/Makefile
@@ -35,6 +33,7 @@ done
 mv -f feeds/womade/{r81*,igb-intel} tmp/
 
 sed -i "s/192.168.1/10.0.0/" package/feeds/womade/base-files/files/bin/config_generate
+sed -i "s/192.168.1/10.0.0/" package/base-files/files/bin/config_generate
 
 (
 svn co https://github.com/coolsnowwolf/lede/trunk/target/linux/generic/hack-5.10 target/linux/generic/hack-5.10

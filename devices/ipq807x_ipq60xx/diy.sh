@@ -4,14 +4,28 @@ shopt -s extglob
 
 SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 
-kernel_v="$(cat include/kernel-version.mk | grep LINUX_KERNEL_HASH-4.* | cut -f 2 -d - | cut -f 1 -d ' ')"
-echo "KERNEL=${kernel_v}" >> $GITHUB_ENV || true
-sed -i "s?targets/%S/.*'?targets/%S/$kernel_v'?" include/feeds.mk
+mv -f ../feeds/ipq807x/ipq807x target/linux/
+./scripts/feeds install -a -p wifi_ax -f
 
-rm -rf target/linux/ipq807x package/network/wifi-ax
-svn co https://github.com/Telecominfraproject/wlan-ap/trunk/feeds/ipq807x target/linux/ipq807x
-svn co https://github.com/Telecominfraproject/wlan-ap/trunk/feeds/wifi-ax package/network/wifi-ax
+rm -rf package/feeds/wifi_ax/hostapd
 
-rm -rf devices/common/patches/{glinet,imagebuilder.patch,iptables.patch,kernel-defaults.patch}
+sed -i "/gl_feeds_common/d" feeds.conf
+sed -i "/ipq807x/d" feeds.conf
+sed -i "/wifi_ax/d" feeds.conf
 
+rm -rf package/feeds/womade/{firewall,rtl*,base-files,netifd,nft-fullcone,mbedtls,oaf,shortcut-fe,simulated-driver,fast-classifier,fullconenat}
 
+rm -rf package/kernel/{nat46,ath10k-ct,mt76,rtl8812au-ct}
+rm -rf feeds/packages/net/xtables-addons package/feeds/packages/openvswitch
+
+sed -i "s/PKG_HASH:=.*/PKG_HASH:=skip/" package/feeds/wifi_ax/mac80211/Makefile
+
+rm -rf devices/common/patches/{glinet,imagebuilder.patch,iptables.patch,targets.patch,kernel-defaults.patch,disable_flock.patch}
+
+rm -rf toolchain/musl
+
+svn co https://github.com/openwrt/openwrt/branches/openwrt-22.03/toolchain/musl toolchain/musl
+
+svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/network/services/fullconenat feeds/womade/fullconenat
+
+make defconfig
