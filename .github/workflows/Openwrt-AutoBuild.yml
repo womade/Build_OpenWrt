@@ -236,12 +236,12 @@ jobs:
       run: |
         shopt -s extglob
         mkdir -p firmware/${{matrix.target}}
+        cd openwrt; kernel_v="$(make --file=info.mk kernel_version)"; cd -
         cp -rf openwrt/bin/targets/*/*/*{combined,sysupgrade}* ./firmware/${{matrix.target}}/ || true
         cd openwrt/bin/targets/*/*/
         mv -f profiles.json profiles.json.b
         cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
         cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
-        kernel_v="$(make --file=$GITHUB_WORKSPACE/openwrt/info.mk kernel_version)"
         mv -f packages $kernel_v
         mkdir packages
         cp -rf kernel_v/Packages* packages/
@@ -256,21 +256,6 @@ jobs:
         echo "DOCKERTAG=${{ secrets.DOCKER_ID }}/openwrt-nginx:latest" >> $GITHUB_ENV
         echo "NOTICE=请分配不少于1G的存储容量" >> $GITHUB_ENV
         fi
-
-    - name: Upload to AliDrive
-      continue-on-error: true
-      run: |
-        wget https://github.com/womade/Build_OpenWrt/raw/main/alidrive -O alidrive
-        wget ${{ secrets.ALIDRIVE_CONFIG }} -O config.yaml
-        chmod +x alidrive
-        ./alidrive openwrt/bin/targets/*/ OpenWrt/${{ matrix.target }}/$(date +'%Y%m%d-%H')/
-
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        ARGS: "-avzr --exclude="
-        SOURCE: firmware/
-        REMOTE_HOST: op.ssss.fun
-        REMOTE_USER: root
-        TARGET: "/www/wwwroot/op.ssss.fun/firmware/"
 
     - name: Deploy imagebuilder to server
       uses: easingthemes/ssh-deploy@main
@@ -293,6 +278,21 @@ jobs:
         name: ${{ env.VERSION }}_${{matrix.target}}
         path: |
           openwrt/bin/targets/
+
+    - name: Upload to AliDrive
+      continue-on-error: true
+      run: |
+        wget https://github.com/womade/Build_OpenWrt/raw/main/alidrive -O alidrive
+        wget ${{ secrets.ALIDRIVE_CONFIG }} -O config.yaml
+        chmod +x alidrive
+        ./alidrive openwrt/bin/targets/*/ OpenWrt/${{ matrix.target }}/$(date +'%Y%m%d-%H')/
+
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-avzr --exclude="
+        SOURCE: firmware/
+        REMOTE_HOST: op.ssss.fun
+        REMOTE_USER: root
+        TARGET: "/www/wwwroot/op.ssss.fun/firmware/"
 
     - name: Upload firmware to cowtransfer
       if: env.UPLOAD_FIRMWARE_TO_COWTRANSFER == 'true'
