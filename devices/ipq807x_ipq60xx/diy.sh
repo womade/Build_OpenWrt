@@ -7,6 +7,7 @@ SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 rm -rf target/linux/ipq807x
 mv -f ../feeds/ipq807x/ipq807x target/linux/
 ./scripts/feeds install -a -p wifi_ax -f
+./scripts/feeds install -a
 
 rm -rf package/feeds/wifi_ax/hostapd
 
