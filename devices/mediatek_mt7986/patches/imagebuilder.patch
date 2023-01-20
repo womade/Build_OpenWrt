@@ -15,7 +15,7 @@
 -endif
 +	$(SED) 's/^src\/gz \(.*\) https.*top\/\(packages.*\)/src \1 file:\/\/www\/wwwroot\/op.ssss.fun\/\2/' $(PKG_BUILD_DIR)/repositories.conf
 +	$(SED) 's/^src\/gz \(.*\) https.*top\/\(targets.*\)/src \1 file:\/\/www\/wwwroot\/op.ssss.fun\/releases\/\2/' $(PKG_BUILD_DIR)/repositories.conf
-+	$(SED) 's/\/kiddin9//' $(PKG_BUILD_DIR)/repositories.conf
++	$(SED) 's/\/womade//' $(PKG_BUILD_DIR)/repositories.conf
  
  	$(INSTALL_DIR) $(PKG_BUILD_DIR)/packages
  	# create an empty package index so `opkg` doesn't report an error

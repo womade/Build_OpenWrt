@@ -1,5 +1,5 @@
---- a/package/feeds/kiddin9/netifd/files/etc/init.d/network
-+++ b/package/feeds/kiddin9/netifd/files/etc/init.d/network
+--- a/package/feeds/womade/netifd/files/etc/init.d/network
++++ b/package/feeds/womade/netifd/files/etc/init.d/network
 @@ -30,7 +30,7 @@ reload_service() {
  
  	init_switch

@@ -1,8 +1,8 @@
 #!/bin/bash
 shopt -s extglob
 
-rm -rf package/system/opkg && mv -f feeds/kiddin9/opkg package/system/
-rm -rf package/feeds/kiddin9/{firewall,rtl*,nft-fullcone,fullconenat} package/kernel/mt76 toolchain/musl
+rm -rf package/system/opkg && mv -f feeds/womade/opkg package/system/
+rm -rf package/feeds/womade/{firewall,rtl*,nft-fullcone,fullconenat} package/kernel/mt76 toolchain/musl
 
 rm -rf target/imagebuilder
 svn co https://github.com/openwrt/openwrt/branches/openwrt-22.03/target/imagebuilder target/imagebuilder
