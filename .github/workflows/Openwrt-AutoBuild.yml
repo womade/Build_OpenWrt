@@ -61,7 +61,7 @@ jobs:
         elif [ ${{matrix.target}} == "x86_generic" ]; then
             echo "ARCH=linux/amd32" >> $GITHUB_ENV
             echo "MTARGET=x86_generic" >> $GITHUB_ENV
-        elif [[ ${{matrix.target}} =~ (armvirt_64|ipq807x|mediatek_mt7622|mediatek_mt7981|mediatek_gl_mt7981|mediatek_filogic|bcm27xx_bcm2710|ipq60xx_generic|ipq807x_ipq60xx|bcm4908_generic|sunxi_cortexa53) ]]; then
+        elif [[ ${{matrix.target}} =~ (armvirt_64|ipq807x|mediatek_mt7622|mediatek_mt7981|mediatek_mt7981|mediatek_gl_mt7986|mediatek_filogic|bcm27xx_bcm2710|ipq60xx_generic|ipq807x_ipq60xx|bcm4908_generic|sunxi_cortexa53) ]]; then
             echo "MTARGET=aarch64_cortex-a53" >> $GITHUB_ENV
         elif [[ ${{matrix.target}} =~ (ramips_mt7621|ramips_mt7620|ramips_mt76x8) ]]; then
             echo "MTARGET=mipsel_24kc" >> $GITHUB_ENV
@@ -88,6 +88,19 @@ jobs:
           elif [[ ${{matrix.target}} == "rockchip_armv8" ]]; then
             echo "MTARGET=aarch64_generic" >> $GITHUB_ENV
           fi
+        fi
+
+    - name: Trigger Packages Update
+      continue-on-error: true
+      run: |
+        gitdate=$(curl -s "https://api.github.com/repos/womade/openwrt-packages/actions/runs" | jq -r '.workflow_runs[0].created_at')
+        gitdate=$(date -d "$gitdate" +%s)
+        now=$(date -d "$(date)" +%s)
+        if [[ $(expr $gitdate + 300) < $now ]]; then
+          curl -X POST https://api.github.com/repos/womade/openwrt-packages/dispatches \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
+          --data '{"event_type": "update"}'
         fi
 
     - name: Initialization environment
@@ -176,10 +189,10 @@ jobs:
     - name: Apply patches
       run: |
         cd openwrt
-        find "devices/common/patches" -type f ! -name 'china_mirrors.patch' -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d './' --no-backup-if-mismatch --merge -p1 -E --forward"
+        find "devices/common/patches" -type f ! -name 'china_mirrors.patch' -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d './' -B --merge -p1 -E --forward"
         #git apply devices/common/patches/*.patch
         if [ -n "$(ls -A "devices/${{matrix.target}}/patches" 2>/dev/null)" ]; then
-          find "devices/${{matrix.target}}/patches" -maxdepth 1 -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d './' --no-backup-if-mismatch --merge -p1 -E --forward"
+          find "devices/${{matrix.target}}/patches" -maxdepth 1 -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d './' -B --merge -p1 -E --forward"
           #git apply devices/${{matrix.target}}/patches/*.patch
         fi
         
@@ -240,12 +253,11 @@ jobs:
         cd openwrt; kernel_v="$(make --file=info.mk kernel_version)"; cd -
         cp -rf openwrt/bin/targets/*/*/*{combined,sysupgrade}* ./firmware/${{matrix.target}}/ || true
         cd openwrt/bin/targets/*/*/
-        mv -f profiles.json profiles.json.b
+        mv -f profiles.json profiles.json.b || true
         cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
         cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
         mv -f packages $kernel_v
-        mkdir packages
-        cp -rf kernel_v/Packages* packages/
+        ln -sf $kernel_v packages
         cd -
         rename -v "s/openwrt-/${{ env.VERSION }}-openwrt-/" ./firmware/*/* || true
         rename -v "s/friendlyarm_//" ./firmware/*/*gz || true

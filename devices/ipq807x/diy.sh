@@ -11,6 +11,7 @@ rm -rf feeds/womade/{rtl8821cu,rtl88x2bu} package/kernel/mt76
 
 sed -i "s/tty\(0\|1\)::askfirst/tty\1::respawn/g" target/linux/*/base-files/etc/inittab
 
+
 sed -i '$a  \
 CONFIG_CPU_FREQ_GOV_POWERSAVE=y \
 CONFIG_CPU_FREQ_GOV_USERSPACE=y \

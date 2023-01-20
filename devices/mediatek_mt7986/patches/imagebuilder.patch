@@ -15,7 +15,7 @@
 -endif
 +	$(SED) 's/^src\/gz \(.*\) https.*top\/\(packages.*\)/src \1 file:\/\/www\/wwwroot\/op.ssss.fun\/\2/' $(PKG_BUILD_DIR)/repositories.conf
 +	$(SED) 's/^src\/gz \(.*\) https.*top\/\(targets.*\)/src \1 file:\/\/www\/wwwroot\/op.ssss.fun\/releases\/\2/' $(PKG_BUILD_DIR)/repositories.conf
-+	$(SED) 's/\/womade//' $(PKG_BUILD_DIR)/repositories.conf
++	$(SED) 's/\/kiddin9//' $(PKG_BUILD_DIR)/repositories.conf
  
  	$(INSTALL_DIR) $(PKG_BUILD_DIR)/packages
  	# create an empty package index so `opkg` doesn't report an error
@@ -39,7 +39,7 @@
  	echo
  	rm -rf $(TARGET_DIR) $(TARGET_DIR_ORIG)
  	mkdir -p $(TARGET_DIR) $(BIN_DIR) $(TMP_DIR) $(DL_DIR)
-+	if [[ "$(USER_PROFILE)" =~ (DEVICE_phicomm_k2p|DEVICE_asus_rt-n56u-b1|DEVICE_thunder_timecloud|DEVICE_youku_yk-l2|DEVICE_youhua_wr1200js|DEVICE_oraybox_x3a|DEVICE_netgear_wndr3700-v5|DEVICE_xiaomi_mi-router-4a-gigabit|DEVICE_xiaomi_mi-router-4a-gigabit-v2|DEVICE_xiaomi_mi-router-3g-v2|DEVICE_jcg_y2|DEVICE_glinet_gl-mt300a|DEVICE_glinet_gl-mt750|DEVICE_hiwifi_hc5661|DEVICE_hiwifi_hc5761|DEVICE_hiwifi_hc5861|DEVICE_lenovo_newifi-y1|DEVICE_lenovo_newifi-y1s|DEVICE_xiaomi_miwifi-mini|DEVICE_youku_yk-l1c|DEVICE_jdcloud_luban|DEVICE_zte_e8820v2) || "$(TARGETID)" == "ramips/mt76x8" ]]; then \
++	if [[ "$(USER_PROFILE)" =~ (DEVICE_phicomm_k2p|DEVICE_asus_rt-n56u-b1|DEVICE_thunder_timecloud|DEVICE_youku_yk-l2|DEVICE_youhua_wr1200js|DEVICE_oraybox_x3a|DEVICE_netgear_wndr3700-v5|DEVICE_xiaomi_mi-router-4a-gigabit|DEVICE_xiaomi_mi-router-3g-v2|DEVICE_jcg_y2|DEVICE_glinet_gl-mt300a|DEVICE_glinet_gl-mt750|DEVICE_hiwifi_hc5661|DEVICE_hiwifi_hc5761|DEVICE_hiwifi_hc5861|DEVICE_lenovo_newifi-y1|DEVICE_lenovo_newifi-y1s|DEVICE_xiaomi_miwifi-mini|DEVICE_youku_yk-l1c|DEVICE_jdcloud_luban) || "$(TARGETID)" == "ramips/mt76x8" ]]; then \
 +		echo "src/gz openwrt_smflash https://op.ssss.fun/packages/mipsel_24kc/small_flash" >>$(TOPDIR)/repositories.conf; \
 +	else \
 +		sed -i "/smflash/d" $(TOPDIR)/repositories.conf; \
@@ -88,3 +88,35 @@
  		$(if $(USER_PROFILE),PROFILE="$(USER_PROFILE)")
  
  $(BIN_DIR)/profiles.json: FORCE
+
+--- a/scripts/json_overview_image_info.py
++++ b/scripts/json_overview_image_info.py
+@@ -47,7 +47,7 @@ def get_initial_output(image_info):
+ 
+ 
+ if output:
+-    default_packages, output["arch_packages"] = run(
++    default_packages, output["arch_packages"], output["kernel_version"], output["initramfs"] = run(
+         [
+             "make",
+             "--no-print-directory",
+@@ -55,6 +55,8 @@ def get_initial_output(image_info):
+             "target/linux/",
+             "val.DEFAULT_PACKAGES",
+             "val.ARCH_PACKAGES",
++            "val.LINUX_VERSION",
++            "val.KERNEL_INITRAMFS",
+         ],
+         stdout=PIPE,
+         stderr=PIPE,
+
+--- a/rules.mk
++++ b/rules.mk
+@@ -59,6 +59,7 @@ _SINGLE=export MAKEFLAGS=$(space);
+ CFLAGS:=
+ ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(call qstrip,$(CONFIG_ARCH)))))
+ ARCH_PACKAGES:=$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))
++KERNEL_INITRAMFS:=$(call qstrip,$(CONFIG_TARGET_ROOTFS_INITRAMFS))
+ BOARD:=$(call qstrip,$(CONFIG_TARGET_BOARD))
+ SUBTARGET:=$(call qstrip,$(CONFIG_TARGET_SUBTARGET))
+ TARGET_OPTIMIZATION:=$(call qstrip,$(CONFIG_TARGET_OPTIMIZATION))
