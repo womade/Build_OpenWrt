@@ -1,7 +1,7 @@
 #!/bin/bash
 shopt -s extglob
 
-rm -rf package/boot/uboot-envtools package/kernel package/firmware/ath11k* package/qca target/linux/generic target/linux/ipq60xx package/network/config/netifd feeds/kiddin9/fullconenat toolchain tools/squashfskit4
+rm -rf package/boot/uboot-envtools package/kernel package/firmware/ath11k* package/qca target/linux/generic target/linux/ipq60xx package/network/config/netifd feeds/womade/fullconenat toolchain tools/squashfskit4
 svn export --force https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/boot/uboot-envtools package/boot/uboot-envtools
 svn export --force https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/firmware/ath11k-firmware package/firmware/ath11k-firmware
 svn export --force https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/qca package/qca
@@ -10,7 +10,7 @@ svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/target/linux/gene
 svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/target/linux/ipq60xx target/linux/ipq60xx
 wget -P dl/ https://github.com/coolsnowwolf/openwrt-gl-ax1800/raw/master/dl/linux-4.4.60.tar.xz
 svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/kernel package/kernel
-svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/network/services/fullconenat feeds/kiddin9/fullconenat
+svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/network/services/fullconenat feeds/womade/fullconenat
 svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/package/network/config/netifd package/network/config/netifd
 svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/toolchain toolchain
 svn co https://github.com/coolsnowwolf/openwrt-gl-ax1800/trunk/tools/squashfskit4 tools/squashfskit4
@@ -21,7 +21,7 @@ curl -sfL https://raw.githubusercontent.com/coolsnowwolf/openwrt-gl-ax1800/maste
 curl -sfL https://raw.githubusercontent.com/coolsnowwolf/openwrt-gl-ax1800/master/include/quilt.mk -o include/quilt.mk
 
 rm -rf toolchain/.svn
-rm -rf feeds/kiddin9/{rtl*,fullconenat-nft,shortcut-fe,netifd} package/kernel/mt76 toolchain/musl package/feeds/packages/{xtables-addons,openvswitch}
+rm -rf feeds/womade/{rtl*,fullconenat-nft,shortcut-fe,netifd} package/kernel/mt76 toolchain/musl package/feeds/packages/{xtables-addons,openvswitch}
 svn co https://github.com/openwrt/openwrt/branches/openwrt-22.03/toolchain/musl toolchain/musl
 svn co https://github.com/openwrt/openwrt/branches/openwrt-22.03/toolchain/glibc toolchain/glibc
 
